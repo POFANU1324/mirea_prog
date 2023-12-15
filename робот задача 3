@@ -6,7 +6,7 @@ function mark_pole!(r::Robot)
     
     side=Ost
     
-    while  ((isborder(r,Nord)==false) || ((isborder(r,Ost)==false) &&  (isborder(r,West)==false)))
+    while  ((isborder(r,Nord)==false) || ((isborder(r,Ost)==false) &&  (isborder(r,West)==false)))  # проверяем есть ли стена на севере, на западе и на востоке
         putmarkers!(r, side) 
         move!(r,Nord)
         if isborder(r,Ost)==true
@@ -16,12 +16,12 @@ function mark_pole!(r::Robot)
         end
     end
      
-    if isborder(r,Ost)==true
+    if isborder(r,Ost)==true # если есть стена на западе
         putmarkers!(r,West)   
         while isborder(r,Sud)==false
             move!(r,Sud)
         end
-    elseif isborder(r,West)==true
+    elseif isborder(r,West)==true # если есть стена на востоке
         putmarkers!(r,Ost)
         while isborder(r,Sud)==false
             move!(r,Sud)
