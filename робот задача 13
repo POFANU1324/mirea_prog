@@ -4,7 +4,7 @@
 #РЕЗУЛЬТАТ: Робот - в исходном положении в центре косого 
 #креста (в форме X) из маркеров.
 
-function mark_cross!(r::Robot) 
+function mark_cross!(r::Robot) # проходим по краям
     for side in ((Nord,Ost),(Sud,Ost),(Sud,West),(Nord,West))
         putmarkers!(r,side)
         move_by_marker!(r,inverse(side))
@@ -12,7 +12,7 @@ function mark_cross!(r::Robot)
     putmarker!(r)
 end 
 
-function putmarkers!(r::Robot,side::NTuple{2,HorizonSide})
+function putmarkers!(r::Robot,side::NTuple{2,HorizonSide}) # расставляем маркеры по краям
     while ((isborder(r,side[1])==false) && (isborder(r,side[2])==false))
            move!(r,side)
            putmarker!(r)
