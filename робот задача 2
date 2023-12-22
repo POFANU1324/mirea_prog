@@ -1,39 +1,37 @@
 #ДАНО: Робот - в произвольной клетке поля (без внутренних перегородок и маркеров)
 #РЕЗУЛЬТАТ: Робот - в исходном положении, и все клетки по периметру внешней рамки промакированы
-function mark_frame_perimetr!(r::Robot)
-    steps_gor=moves!(r,West)
-    steps_vert=moves!(r,Sud)
-    side=Ost
-    for _ in 1:4
-        putmarkers!(r,side)
-        side=next(side)
-    end
-    
-    moves!(r, Nord, steps_vert)
-    moves!(r, Ost, steps_gor)
+function mark_frame_perimetr!(r)
+    x,y = num_sudwest!(r)
+    markframe!(r)
+    return_sudwest!(r,x,y)
 end
-
-function moves!(r::Robot,side::HorizonSide)
-     steps_st=0
-     while isborder(r,side)==false
-        move!(r,side)
-        steps_st=steps_st+1
+function num_sudwest!(r)
+    x=0
+    y=0
+    while isborder(r,Sud)==0
+        move!(r,Sud)
+        x+=1
     end
-    return steps_st
-end
-
-function moves!(r::Robot,side::HorizonSide,steps_st::Int)
-    for _ in 1:steps_st 
-        move!(r,side)
+    while isborder(r,West)==0
+        move!(r,West)
+        y+=1
     end
+    return x,y
 end
-
-
-function putmarkers!(r::Robot,side::HorizonSide)
-    while isborder(r,side)==false
-        move!(r,side)
-        putmarker!(r)
+function markframe!(r)
+    for side in [Nord,Ost,Sud,West]
+        while isborder(r,side)==0
+            putmarker!(r)  
+            move!(r,side) 
+        end 
     end
 end
-
-next(side::HorizonSide)=HorizonSide(mod(Int(side)+1,4))
+function return_sudwest!(r,x,y)
+    for i in 1:x
+        move!(r,Nord)
+    end
+    for i in 1:y
+        move!(r,Ost)
+    end
+end
+mark_frame_perimetr!(r)
