@@ -4,46 +4,52 @@
 #вырождаться в отрезки)
 #РЕЗУЛЬТАТ: Робот - в исходном положении и в углах поля стоят маркеры
 
-function mark_angle!(r::Robot)
-    count_steps=[]
-    while ((isborder(r,West)==false) || (isborder(r,Sud)==false)) 
-        push!(count_steps,moves!(r,West))
-        push!(count_steps,moves!(r,Sud))
+function mark_corner_frame_with_borders(r)
+    home=[]
+    home = move_to_corner!(r)
+    mark_corner_frame(r)
+    move_to_home!(r,home)
     end
-    
-    for side in (Ost,Nord,West,Sud)
-        putmarkers!(r,side)
+function move_to_border!(r,side)
+    count=0
+    while isborder(r,side)==0
+        move!(r,side)
+        count +=1    
     end
-
-    for (i,n) in enumerate(reverse!(count_steps))  #массив наоборот, с последнего шага до первого
-        #пары индекс-значение элементов (индексу i соответствует значение n)
-        if isodd(i)==true   #нечетный    
-           side=Nord  #Сначала запад, потом юг...массив перевенули, т. е сначала юг,потом запад
-        else
-           side=Ost
-        end
-        moves!(r,side,n)  
+    return count
+end
+function move_to_corner!(r)
+home=[]
+    while isborder(r,Nord)==0 || isborder(r,West)==0
+        x = move_to_border!(r,Nord)
+        y = move_to_border!(r,West)
+        push!(home,x)
+        push!(home,y)
+    end
+    return home
+end
+function countmove!(r,side,count)
+    for i in 1:count
+        move!(r,side)
     end
 end
-
-function putmarkers!(r::Robot,side::HorizonSide)
+function mark_corner_frame(r)
     putmarker!(r)
-    while isborder(r,side)==false 
-        move!(r,side)
-    end
-end   
-
-function moves!(r::Robot,side::HorizonSide)
-    steps=0
-    while isborder(r,side)==false
-        move!(r,side)
-        steps=steps+1
-    end 
-return steps
-end
-
-function moves!(r::Robot,side::HorizonSide,num_steps::Int)
-    for _ in 1:num_steps
-        move!(r,side)
+    for side in [Sud,Ost,Nord,West]
+        while isborder(r,side)==0
+            move!(r,side)
+        end
+        putmarker!(r)
     end
 end
+function move_to_home!(r,home)
+    reverse!(home)
+    for i = 1:length(home)
+        if i%2==0
+            countmove!(r,Sud,home[i])
+        else
+            countmove!(r,Ost,home[i]) 
+        end 
+    end
+end
+mark_corner_frame_with_borders(r)
