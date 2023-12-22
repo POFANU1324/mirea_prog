@@ -6,107 +6,79 @@
 #полезными две глобальных переменных, в которых будут содержаться текущие декартовы координаты
 # Робота относительно начала координат в левом нижнем углу поля, например)
 
-global x=0
-global y=0
-global FLAGx=false
-global FLAGy=false
-global count=0
-global count_n=0
-function mark_chess!(r::Robot,n::Int) #n-количество маркеров
-    global y
-    side=Ost
-    num_gor=moves!(r,West)
-    num_vert=moves!(r,Sud)
-    while (isborder(r,Nord)==false || ((isborder(r,West)==false) && (isborder(r,Ost)==false)))
-        putmarkers!(r,n,side)
-        move!(r,Nord)
-        y=y+1
-        side=inverse(side)
-        while isborder(r,side)==false
-            move!(r,side)
+function chess(r, n)
+    z = 0
+    m = 0
+    z, m = corner(r)
+    side = Ost;
+    x = 0;
+    y = 0;
+    if ((x ÷ n) + (y ÷ n)) % 2 == 0
+        putmarker!(r)
+    end
+    while isborder(r,Nord) == false
+        x, y = chess_line!(side, n, x, y, r)
+        move!(r,Nord);
+        y = y + 1;
+        side = revers(side);
+        put!(r, x, y, n)
+    end
+    x, y = chess_line!(side, n, x, y, r)
+    go_home!(r, z, m)
+end
+function movements_mark!(r,side)
+    while (isborder(r,side) ==  false) && (ismarker(r) == true)
+        move!(r,side)
+    end 
+end
+function revers(side)
+    side = HorizonSide((Int(side)+2)%4)
+    return side
+end
+function count_move!(r,side,count)
+    for i = 1:count 
+        move!(r,side)
+    end 
+end
+function movements_to_side!(r,side)
+    count = 0
+    while isborder(r,side) ==  false 
+        move!(r,side)
+        count = count + 1
+    end 
+    return count
+end
+function corner(r)
+    x = 0
+    y = 0
+    while (isborder(r, Sud) == false) || (isborder(r, West) == false)
+        y = y + movements_to_side!(r, Sud)
+        x = x + movements_to_side!(r, West)
+    end
+    return x, y
+end
+function go_home!(r, x, y)
+    corner(r)
+    count_move!(r, Nord, y)
+    count_move!(r, Ost, x)
+end
+function chess_line!(side, n, x, y, r)
+    while isborder(r, side) == false
+        move!(r, side)
+        if side == Ost
+            x = x + 1;
+        else
+            x = x - 1;
         end
-        side=Ost
-    end
-    putmarkers!(r,n,side)     
-    
-    while isborder(r,West)==false
-        move!(r,West)
-    end
-   
-    while isborder(r,Sud)==false
-        move!(r,Sud)
-    end
-    
-    return!(r,Ost,num_gor)
-    return!(r,Nord,num_vert)
-end
 
-function moves!(r::Robot,side::HorizonSide)
-    steps_count=0
-    while isborder(r,side)==false
-        move!(r,side)
-        steps_count=steps_count+1
+        put!(r, x, y, n)
     end
-return steps_count
+    return x, y
 end
-
-function putmarkers!(r::Robot,n::Int,side::HorizonSide)
-    global x
-    global y
-    global FLAGx
-    global FLAGy
-    global count
-    global count_n
-    
-    if mod(y,n)==0   #если координата по у начело делится на n, то меняем флаг
-        FLAGy=!FLAGy # самая начальная координата по у =0
-    end # если n=2, то ставится на правду в 0, если 2, то на ложь
-     # n=4, то опять на правду и тд для любого n
-    if FLAGy==true 
-        while (isborder(r,side)==false)
-            put_marker!(r,side,n)
-            if (isborder(r,side)==false)
-                move!(r,side)
-            end    
-            not_put_marker!(r,side,n)
-        end 
-        
-    else
-        while (isborder(r,side)==false)
-             not_put_marker!(r,side,n)
-             if (isborder(r,side)==false) 
-                put_marker!(r,side,n)
-            end 
-        end
+function put!(r, x, y, n)
+    if ((x ÷ n) + (y ÷ n)) % 2 == 0
+        putmarker!(r)
     end
 end
-
-function put_marker!(r::Robot,side::HorizonSide,n::Int)
-    count=1
-    putmarker!(r)
-    while ((isborder(r,side)==false) && (count<n))
-            count=count+1
-            move!(r,side)
-            putmarker!(r)
-    end
-if ((isborder(r,side)==false) && (FLAGy==false))
-    move!(r,side)   
-end 
-end  
- 
-
-function not_put_marker!(r::Robot,side::HorizonSide,n::Int)
-    count_n=0
-    while ((isborder(r,side)==false) && (count_n<n))
-        count_n=count_n+1
-        move!(r,side)
-    end
-end
-
-function return!(r::Robot,side::HorizonSide,steps::Int)
-    for _ in 1:steps
-        move!(r,side)
-    end
-end
-
-inverse(side::HorizonSide)=HorizonSide(mod(Int(side)+2,4))
+n = 3
+chess(r,n)
