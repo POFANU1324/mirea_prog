@@ -3,7 +3,7 @@
 using HorizonSideRobots
 include("function.jl")
 
-robot = Robot("situations/8.sit", animeta = true)
+robot = Robot("situations/8.sit", animate = true)
 
 function search_along!(robot,side,steps)
     for i in 1:steps
