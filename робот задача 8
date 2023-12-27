@@ -1,17 +1,35 @@
 #ДАНО: Робот - рядом с горизонтальной перегородкой (под ней), бесконечно продолжающейся в обе стороны, в которой имеется проход шириной в одну клетку.
 #РЕЗУЛЬТАТ: Робот - в клетке под проходом
-function find_gap(r)
-    i = 1
-    j = 3
-    while isborder(r,Nord)==1
-        for n in 1:i
-            move!(r,HorizonSide(j % 4))
-            if isborder(r,Nord)==0
-                break
-            end
+using HorizonSideRobots
+include("function.jl")
+
+robot = Robot("situations/8.sit", animeta = true)
+
+function search_along!(robot,side,steps)
+    for i in 1:steps
+        move!(robot,side)
+        if ismarker(robot)
+            return true
         end
-        j += 2
-        i += 4
-    end  
+    end
+
+    return false
 end
-find_gap(r)
+
+function spiral!(robot)
+    i = 0
+    steps = 0
+    direction = Nord
+    while !ismarker(robot)
+        if i == 0 
+            sters += 1
+        end
+
+        search_along!(robot,direction,steps)
+        direction = clockwise(direction)
+        i = (i + 1) % 2
+    end
+end
+
+spiral!(robot)
+    
